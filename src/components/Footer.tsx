@@ -31,8 +31,10 @@ export default function Footer() {
             </a>
           </span>
         </div>
-        <p className="text-xs text-gray-300">
-          Not financial advice.
+        <p className="text-xs text-gray-400 max-w-2xl mx-auto">
+          All calculations are provided on a best-effort basis and may be inaccurate or incomplete.
+          This tool does not provide tax, legal, or accounting advice. The authors and contributors
+          accept no liability for errors, omissions, or any losses arising from the use of this tool.
         </p>
       </div>
     </footer>

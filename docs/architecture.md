@@ -45,11 +45,8 @@ src/
     format.ts              — Display formatting helpers
   components/              — React UI components
 
-scripts/
-  update-prices.ts         — Builds bundled price JSON from historical CSVs + CoinGecko
-
 historical-data/           — CoinGecko "max" CSV exports (source of truth for prices)
-public/data/               — Bundled JSON price files (built by update-prices.ts)
+public/data/               — Bundled JSON price files (generated from historical-data/)
 ```
 
 ## Data sources
@@ -58,6 +55,5 @@ public/data/               — Bundled JSON price files (built by update-prices.
 |------|--------|------|
 | Wallet transaction history | [Helius API](https://helius.dev) | Free API key (user-provided at runtime) |
 | Historical token prices (all tokens) | CoinGecko CSV exports in `historical-data/` | None (static files) |
-| Recent HNT prices | [CoinGecko API](https://www.coingecko.com/en/api) | Demo API key in `.env` (build-time only) |
 
-IOT and MOBILE emissions ended January 29, 2025 (HIP 138 — "Return to HNT"). After that date, all Helium mining rewards are paid in HNT. The historical CSVs contain complete price data for IOT and MOBILE through their end of life, so no live API calls are needed for those tokens.
+IOT and MOBILE emissions ended January 29, 2025 (HIP 138 — "Return to HNT"). After that date, all Helium mining rewards are paid in HNT. The historical CSVs contain complete price data for IOT and MOBILE through their end of life.

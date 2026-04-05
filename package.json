@@ -10,8 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc -b",
-    "update-prices": "npx tsx scripts/update-prices.ts"
+    "typecheck": "tsc -b"
   },
   "license": "MIT",
   "dependencies": {

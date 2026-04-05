@@ -34,7 +34,7 @@ export default function ApiKeyInput({ onChange }: ApiKeyInputProps) {
             <a href="https://helius.dev" target="_blank" rel="noopener noreferrer" className="underline text-violet-300">
               helius.dev
             </a>{" "}
-            (free tier: 1M credits/month). Your key is stored locally in your browser only.
+            (no affiliation; free tier: 1M credits/month). Your key is stored locally in your browser only.
             <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800" />
           </span>
         </span>
@@ -77,7 +77,7 @@ export default function ApiKeyInput({ onChange }: ApiKeyInputProps) {
         >
           helius.dev
         </a>
-        {" "}— stored locally in your browser only.
+        {" "}(no affiliation) — stored locally in your browser only.
       </p>
     </div>
   );

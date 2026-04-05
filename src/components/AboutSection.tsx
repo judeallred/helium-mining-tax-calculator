@@ -34,6 +34,21 @@ export default function AboutSection() {
             public APIs.
           </p>
 
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-800 text-xs space-y-2">
+            <p>
+              <strong>Important:</strong> All calculations are provided on a best-effort basis.
+              Price data, transaction classification, and cost basis figures may be inaccurate or
+              incomplete. <strong>You are solely responsible for verifying all data before using it
+              for tax filing or any other purpose.</strong>
+            </p>
+            <p>
+              This tool <strong>does not</strong> provide tax, legal, or accounting advice. The
+              authors and contributors accept <strong>no liability</strong> for errors, omissions,
+              or any losses arising from the use of this tool. Consult a qualified tax professional
+              for your specific situation.
+            </p>
+          </div>
+
           <div>
             <p className="font-medium text-gray-700 mb-1">How It Works</p>
             <ol className="list-decimal ml-4 space-y-1">
@@ -63,12 +78,6 @@ export default function AboutSection() {
               the results table — useful for edge cases like airdrops or transfers from another
               wallet you own.
             </p>
-          </div>
-
-          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-800 text-xs">
-            <strong>Disclaimer:</strong> This tool does not provide tax, legal, or accounting advice.
-            All information is for informational purposes only. Consult a qualified professional
-            for your specific situation.
           </div>
 
           <div>

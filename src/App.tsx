@@ -31,7 +31,7 @@ export default function App() {
         return;
       }
       if (!apiKey) {
-        setError("Please enter your Helius API key. Get a free one at helius.dev");
+        setError("Please enter your Helius API key. Get a free one at helius.dev (no affiliation).");
         return;
       }
 

@@ -1,10 +1,21 @@
-import type { Transaction } from "../types";
+import type { Transaction, TransactionType } from "../types";
 
 function escapeField(field: string): string {
   if (field.includes(",") || field.includes('"') || field.includes("\n")) {
     return `"${field.replace(/"/g, '""')}"`;
   }
   return field;
+}
+
+function rewardDescription(type: TransactionType, token: string): string {
+  switch (type) {
+    case "delegation_reward":
+      return `Helium Delegation Reward (${token})`;
+    case "dao_utility_reward":
+      return `Helium DAO Utility Reward (${token})`;
+    default:
+      return `Helium Mining Reward (${token})`;
+  }
 }
 
 function formatDate(date: Date): string {
@@ -28,7 +39,7 @@ export function generateIrsCsv(transactions: Transaction[]): string {
 
   const rows = miningOnly.map((t) => [
     escapeField(formatDate(t.date)),
-    escapeField(`Helium Mining Reward (${t.primaryToken})`),
+    escapeField(rewardDescription(t.type, t.primaryToken)),
     escapeField(Math.abs(t.primaryAmount).toString()),
     escapeField(t.primaryToken),
     escapeField(t.priceUsd !== null ? t.priceUsd.toFixed(6) : "N/A"),
@@ -65,8 +76,8 @@ export function generateKoinlyCsv(transactions: Transaction[]): string {
     "",
     escapeField(t.valueFmvUsd !== null ? t.valueFmvUsd.toFixed(2) : ""),
     "USD",
-    "mining",
-    escapeField(`Helium Mining Reward (${t.primaryToken})`),
+    t.type === "delegation_reward" ? "staking" : "mining",
+    escapeField(rewardDescription(t.type, t.primaryToken)),
     escapeField(t.signature),
   ]);
 

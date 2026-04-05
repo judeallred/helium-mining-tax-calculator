@@ -9,10 +9,11 @@ import ExportButton from "./components/ExportButton";
 import ProgressPanel from "./components/ProgressPanel";
 import AboutSection from "./components/AboutSection";
 import Footer from "./components/Footer";
-import { fetchAllWallets } from "./services/helius";
+import { fetchAllWallets, classifyTransactions } from "./services/helius";
 import { loadPricesForYear } from "./services/coingecko";
 import { clearCacheForWallets } from "./services/cache";
 import { processTransactions } from "./utils/mining";
+import type { ProgramClassification } from "./types";
 
 export default function App() {
   const [addresses, setAddresses] = useState<string[]>([]);
@@ -73,16 +74,31 @@ export default function App() {
 
         if (abortRef.current) return;
 
+        const allSigs = allResults.flatMap(({ transactions: txs }) =>
+          txs.map((tx) => tx.signature),
+        );
+
+        let classifications: Map<string, ProgramClassification> | undefined;
+        if (allSigs.length > 0) {
+          classifications = await classifyTransactions(
+            allSigs,
+            apiKey,
+            setProgress,
+          );
+        }
+
+        if (abortRef.current) return;
+
         setProgress({
           phase: "analyzing",
-          message: "Classifying transactions and calculating cost basis...",
+          message: "Calculating cost basis...",
           current: 0,
           total: 1,
         });
 
         const allTransactions: Transaction[] = [];
         for (const { transactions: rawTxs, wallet } of allResults) {
-          const txs = processTransactions(rawTxs, wallet, prices);
+          const txs = processTransactions(rawTxs, wallet, prices, classifications);
           allTransactions.push(...txs);
         }
 

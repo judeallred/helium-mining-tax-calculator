@@ -66,6 +66,10 @@ export function transactionTypeLabel(type: TransactionType): string {
   switch (type) {
     case "mining_reward":
       return "Mining Reward";
+    case "delegation_reward":
+      return "Delegation Reward";
+    case "dao_utility_reward":
+      return "DAO Utility Reward";
     case "swap":
       return "Swap";
     case "transfer_in":
@@ -74,6 +78,25 @@ export function transactionTypeLabel(type: TransactionType): string {
       return "Transfer Out";
     case "unknown":
       return "Unknown";
+  }
+}
+
+export function transactionTypeColor(type: TransactionType): string {
+  switch (type) {
+    case "mining_reward":
+      return "bg-violet-100 text-violet-800";
+    case "delegation_reward":
+      return "bg-emerald-100 text-emerald-800";
+    case "dao_utility_reward":
+      return "bg-sky-100 text-sky-800";
+    case "swap":
+      return "bg-amber-100 text-amber-800";
+    case "transfer_out":
+      return "bg-red-100 text-red-800";
+    case "transfer_in":
+      return "bg-green-100 text-green-800";
+    case "unknown":
+      return "bg-gray-100 text-gray-800";
   }
 }
 

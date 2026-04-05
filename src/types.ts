@@ -2,6 +2,8 @@ export type HeliumToken = "HNT" | "IOT" | "MOBILE";
 
 export type TransactionType =
   | "mining_reward"
+  | "delegation_reward"
+  | "dao_utility_reward"
   | "swap"
   | "transfer_in"
   | "transfer_out"
@@ -103,3 +105,15 @@ export interface HeliusHistoryResponse {
     nextCursor: string | null;
   };
 }
+
+export interface HeliusParsedInstruction {
+  programId: string;
+  innerInstructions?: HeliusParsedInstruction[];
+}
+
+export interface HeliusParsedTransaction {
+  signature: string;
+  instructions: HeliusParsedInstruction[];
+}
+
+export type ProgramClassification = "mining" | "delegation" | "dao_utility" | null;

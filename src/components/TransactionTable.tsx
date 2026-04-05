@@ -11,7 +11,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import type { Transaction } from "../types";
-import { formatTokenAmount, formatUsd, formatUsdPrice, formatDatetime, truncateMiddle, transactionTypeLabel, tokenColor } from "../utils/format";
+import { formatTokenAmount, formatUsd, formatUsdPrice, formatDatetime, truncateMiddle, transactionTypeLabel, transactionTypeColor, tokenColor } from "../utils/format";
 import { getMiningOverrides, setMiningOverrides } from "../services/cache";
 
 interface TransactionTableProps {
@@ -72,16 +72,8 @@ export default function TransactionTable({ transactions, onMiningToggle }: Trans
         header: "Type",
         cell: (info) => {
           const type = info.getValue();
-          const color =
-            type === "mining_reward"
-              ? "bg-violet-100 text-violet-800"
-              : type === "swap"
-                ? "bg-amber-100 text-amber-800"
-                : type === "transfer_out"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-gray-100 text-gray-800";
           return (
-            <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>
+            <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${transactionTypeColor(type)}`}>
               {transactionTypeLabel(type)}
             </span>
           );

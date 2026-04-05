@@ -61,22 +61,36 @@ export default function AboutSection() {
           </div>
 
           <div>
-            <p className="font-medium text-gray-700 mb-1">How Mining Rewards Are Identified</p>
+            <p className="font-medium text-gray-700 mb-1">How Transactions Are Classified</p>
             <p className="mb-2">
-              The tool examines each on-chain transaction for balance changes involving Helium
-              tokens (HNT, IOT, MOBILE). A transaction is classified as a <strong>mining
-              reward</strong> when Helium tokens appear in your wallet with nothing sent out in
-              the same transaction — this is the signature pattern of a mining payout.
+              The tool uses the Helius enhanced parsed transactions API to identify which
+              Helium programs ran in each transaction, enabling precise classification:
             </p>
-            <p className="mb-2">
-              Transactions where tokens flow both in and out are classified as <strong>swaps</strong>{" "}
-              (e.g. exchanging IOT for HNT). Transactions with only outgoing tokens are
-              classified as <strong>transfers out</strong>.
-            </p>
+            <ul className="list-disc ml-4 space-y-1 mb-2">
+              <li>
+                <span className="inline-block rounded-full px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-800">Mining Reward</span>{" "}
+                — Hotspot earnings distributed via the Helium <em>Lazy Distributor</em> program
+              </li>
+              <li>
+                <span className="inline-block rounded-full px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-800">Delegation Reward</span>{" "}
+                — veHNT staking rewards from subDAO delegation, processed by the <em>TukTuk</em> scheduler + <em>Helium DAO</em> program
+              </li>
+              <li>
+                <span className="inline-block rounded-full px-1.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-800">DAO Utility Reward</span>{" "}
+                — Accumulated Helium DAO utility rewards claimed directly via the <em>Helium DAO</em> program
+              </li>
+              <li>
+                <span className="inline-block rounded-full px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-800">Swap</span>{" "}
+                — Tokens flow both in and out (e.g. exchanging IOT for HNT)
+              </li>
+              <li>
+                <span className="inline-block rounded-full px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800">Transfer Out</span>{" "}
+                — Only outgoing tokens (send to another wallet, exchange, etc.)
+              </li>
+            </ul>
             <p>
-              You can manually override any transaction's classification using the checkbox in
-              the results table — useful for edge cases like airdrops or transfers from another
-              wallet you own.
+              All three reward types are marked as taxable income by default. You can manually
+              override any transaction using the checkbox in the results table.
             </p>
           </div>
 

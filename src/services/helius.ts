@@ -1,10 +1,21 @@
-import type { HeliusHistoryResponse, HeliusHistoryTransaction, FetchProgress } from "../types";
+import type {
+  HeliusHistoryResponse,
+  HeliusHistoryTransaction,
+  HeliusParsedTransaction,
+  FetchProgress,
+  ProgramClassification,
+} from "../types";
 import { fetchWithRetry } from "./fetchWithRetry";
 import { getWalletTxCache, isWalletTxCacheFresh, setWalletTxCache } from "./cache";
 import { HELIUM_MINTS } from "../utils/tokens";
 
 const HELIUS_BASE = "https://api.helius.xyz";
 const PAGE_SIZE = 100;
+const PARSED_BATCH_SIZE = 100;
+
+const PROGRAM_LAZY_DISTRIBUTOR = "1azyuavdMyvsivtNxPoz6SucD18eDHeXzFCUPq5XU7w";
+const PROGRAM_HDAO = "hdaoVTCqhfHHo75XdAMxBKdUqvq1i5bF23sisBqVgGR";
+const PROGRAM_TUKTUK = "tuktukUrfhXT6ZT77QTU8RQtvgL967uRuVagWF57zVA";
 
 function isHeliumRelated(tx: HeliusHistoryTransaction): boolean {
   return tx.balanceChanges.some((bc) =>
@@ -151,4 +162,81 @@ export async function fetchAllWallets(
   }
 
   return results;
+}
+
+function collectPrograms(tx: HeliusParsedTransaction): Set<string> {
+  const progs = new Set<string>();
+  for (const instr of tx.instructions) {
+    progs.add(instr.programId);
+    for (const inner of instr.innerInstructions ?? []) {
+      progs.add(inner.programId);
+    }
+  }
+  return progs;
+}
+
+function classifyByPrograms(progs: Set<string>): ProgramClassification {
+  const hasLazy = progs.has(PROGRAM_LAZY_DISTRIBUTOR);
+  const hasHdao = progs.has(PROGRAM_HDAO);
+  const hasTuktuk = progs.has(PROGRAM_TUKTUK);
+
+  if (hasLazy) return "mining";
+  if (hasTuktuk && hasHdao) return "delegation";
+  if (hasHdao) return "dao_utility";
+  return null;
+}
+
+export async function classifyTransactions(
+  signatures: string[],
+  apiKey: string,
+  onProgress?: (progress: FetchProgress) => void,
+): Promise<Map<string, ProgramClassification>> {
+  const result = new Map<string, ProgramClassification>();
+  const totalBatches = Math.ceil(signatures.length / PARSED_BATCH_SIZE);
+
+  for (let i = 0; i < signatures.length; i += PARSED_BATCH_SIZE) {
+    const batch = signatures.slice(i, i + PARSED_BATCH_SIZE);
+    const batchNum = Math.floor(i / PARSED_BATCH_SIZE) + 1;
+
+    onProgress?.({
+      phase: "analyzing",
+      message: `Classifying transactions (batch ${batchNum}/${totalBatches})...`,
+      current: i,
+      total: signatures.length,
+    });
+
+    const response = await fetchWithRetry(
+      `${HELIUS_BASE}/v0/transactions/?api-key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transactions: batch }),
+      },
+      {
+        onRetry: (attempt, _error, delayMs) => {
+          onProgress?.({
+            phase: "analyzing",
+            message: `Classifying retry... attempt ${attempt} (waiting ${Math.round(delayMs / 1000)}s)`,
+            current: i,
+            total: signatures.length,
+            retrying: true,
+            retryAttempt: attempt,
+          });
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Helius parsed API error: ${response.status} — ${text}`);
+    }
+
+    const parsed = (await response.json()) as HeliusParsedTransaction[];
+    for (const tx of parsed) {
+      const progs = collectPrograms(tx);
+      result.set(tx.signature, classifyByPrograms(progs));
+    }
+  }
+
+  return result;
 }

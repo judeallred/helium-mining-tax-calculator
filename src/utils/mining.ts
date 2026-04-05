@@ -5,10 +5,17 @@ import type {
   TokenPriceMap,
   HeliumToken,
   HeliumBalanceChange,
+  ProgramClassification,
 } from "../types";
 import { MINT_TO_TOKEN } from "./tokens";
 import { lookupPrice } from "../services/coingecko";
 import { getMiningOverrides } from "../services/cache";
+
+const REWARD_TYPES: ReadonlySet<TransactionType> = new Set([
+  "mining_reward",
+  "delegation_reward",
+  "dao_utility_reward",
+]);
 
 function extractHeliumChanges(tx: HeliusHistoryTransaction): HeliumBalanceChange[] {
   const results: HeliumBalanceChange[] = [];
@@ -21,7 +28,10 @@ function extractHeliumChanges(tx: HeliusHistoryTransaction): HeliumBalanceChange
   return results;
 }
 
-function detectType(changes: HeliumBalanceChange[]): TransactionType {
+function detectType(
+  changes: HeliumBalanceChange[],
+  programClass: ProgramClassification | undefined,
+): TransactionType {
   const incoming = changes.filter((c) => c.amount > 0);
   const outgoing = changes.filter((c) => c.amount < 0);
 
@@ -29,19 +39,18 @@ function detectType(changes: HeliumBalanceChange[]): TransactionType {
     return "swap";
   }
 
-  if (incoming.length > 0 && outgoing.length === 0) {
-    return "mining_reward";
-  }
-
   if (outgoing.length > 0 && incoming.length === 0) {
     return "transfer_out";
   }
 
-  return "unknown";
-}
+  if (incoming.length > 0 && outgoing.length === 0) {
+    if (programClass === "mining") return "mining_reward";
+    if (programClass === "delegation") return "delegation_reward";
+    if (programClass === "dao_utility") return "dao_utility_reward";
+    return "mining_reward";
+  }
 
-function shouldClassifyAsMining(type: TransactionType): boolean {
-  return type === "mining_reward";
+  return "unknown";
 }
 
 function getPrimaryChange(changes: HeliumBalanceChange[]): { token: HeliumToken; amount: number } {
@@ -65,15 +74,17 @@ export function processTransactions(
   rawTxs: HeliusHistoryTransaction[],
   walletAddress: string,
   prices: TokenPriceMap,
+  programClassifications?: Map<string, ProgramClassification>,
 ): Transaction[] {
   const overrides = getMiningOverrides();
 
   return rawTxs.map((raw): Transaction => {
     const changes = extractHeliumChanges(raw);
-    const type = detectType(changes);
+    const programClass = programClassifications?.get(raw.signature);
+    const type = detectType(changes, programClass);
     const primary = getPrimaryChange(changes);
     const date = new Date((raw.timestamp ?? 0) * 1000);
-    const autoMining = shouldClassifyAsMining(type);
+    const autoMining = REWARD_TYPES.has(type);
     const isMiningIncome = overrides[raw.signature] ?? autoMining;
     const tokenPrices = prices[primary.token];
     const priceUsd = tokenPrices ? lookupPrice(tokenPrices, date) : null;
